@@ -1,0 +1,131 @@
+apply plugin: 'com.android.application'
+apply plugin: 'me.tatarka.retrolambda'
+apply plugin: 'com.neenbedankt.android-apt'
+
+def ext = rootProject.extensions.getByName("ext")
+
+Properties config = new Properties()
+try {
+    config.load(file('config.properties').newDataInputStream())
+} catch (Exception ex) {
+    throw new GradleException("Missing config.properties, check the config.properties file in /app folder.");
+}
+
+Properties signature = new Properties()
+try {
+    signature.load(rootProject.file('shoppinglist.appconfig').newDataInputStream())
+} catch (Exception e) {
+    // do nothing
+}
+
+android {
+    compileSdkVersion ext.getAt("compileSdkVersion")
+    buildToolsVersion ext.getAt("buildToolsVersion")
+
+    defaultConfig {
+        applicationId "com.farukcankaya.shoppinglist"
+        minSdkVersion ext.getAt("minSdkVersion")
+        targetSdkVersion ext.getAt("targetSdkVersion")
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+
+    productFlavors {
+        development {
+            applicationIdSuffix ".dev"
+            versionCode 1
+            versionName "1.0"
+
+            buildConfigField "String", "API_URL", "\"${config.getProperty("developmentEndpoint")}\""
+
+            manifestPlaceholders = [applicationName: "ShoppingListDev"]
+        }
+
+        production {
+            applicationId "com.farukcankaya.shoppinglist"
+            versionCode 1
+            versionName "1.0"
+
+            buildConfigField "String", "API_URL", "\"${config.getProperty("productionEndpoint")}\""
+
+            manifestPlaceholders = [applicationName: "Shopping List"]
+        }
+    }
+
+    // has to be declared before buildTypes
+    signingConfigs {
+        development {
+            if (signature['developmentKeystore']) {
+                storeFile rootProject.file(signature['developmentKeystore'])
+                storePassword signature['developmentStorePassword']
+                keyAlias signature['developmentKeyAlias']
+                keyPassword signature['developmentKeyPassword']
+            }
+        }
+
+        production {
+            storeFile file("\"${signature.getProperty("productionKeystore")}\"")
+            storePassword "\"${signature.getProperty("productionStorePassword")}\""
+            keyAlias "\"${signature.getProperty("productionKeyAlias")}\""
+            keyPassword "\"${signature.getProperty("productionKeyPassword")}\""
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            useProguard false
+            proguardFiles 'proguard-rules-debug.pro'
+            if (signature['developmentKeystore']) {
+                signingConfig signingConfigs.development
+            }
+        }
+
+        release {
+            minifyEnabled true
+            useProguard true
+            proguardFiles 'proguard-rules.pro'
+            signingConfig signingConfigs.production
+        }
+    }
+
+    lintOptions {
+        warning 'NewApi'
+        disable 'InvalidPackage'
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile "com.android.support:appcompat-v7:${ext.getAt("supportVersion")}"
+    compile "com.android.support:design:${ext.getAt("supportVersion")}"
+
+    apt "com.google.dagger:dagger-compiler:${ext.getAt("dagger")}"
+    compile "com.google.dagger:dagger:${ext.getAt("dagger")}"
+
+    apt "com.google.auto.value:auto-value:${ext.getAt("autoValue")}"
+    provided "com.google.auto.value:auto-value:${ext.getAt("autoValue")}"
+
+    compile "io.reactivex:rxandroid:${ext.getAt("rxandroid")}"
+    compile "io.reactivex:rxjava:${ext.getAt("rxjava")}"
+    provided "javax.annotation:jsr250-api:${ext.getAt("jsr250")}"
+
+    compile "com.squareup.retrofit2:retrofit:${ext.getAt("retrofit")}"
+    compile "com.squareup.retrofit2:converter-gson:${ext.getAt("retrofit")}"
+    compile "com.squareup.retrofit2:adapter-rxjava:${ext.getAt("retrofit")}"
+
+    compile "com.squareup.okhttp3:okhttp:${config.getAt("okhttp")}"
+    compile "com.squareup.okhttp3:logging-interceptor:${ext.getAt("okhttp")}"
+
+    compile "com.google.code.gson:gson:${config.getAt("gson")}"
+
+
+    androidTestCompile("com.android.support.test.espresso:espresso-core:${ext.getAt("espresso")}", {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    testCompile "junit:junit:${ext.getAt("junit")}"
+}

@@ -1,0 +1,24 @@
+ext {
+    // Project configuration
+    compileSdkVersion = 25
+    targetSdkVersion = 25
+    minSdkVersion = 15
+
+    // Dependencies versions
+    buildToolsVersion = '25.0.1'
+    supportVersion = '25.1.0'
+
+
+    gson = '2.8.0'
+    dagger = '2.7'
+    retrofit = '2.1.0'
+    okhttp = '3.4.2'
+    rxandroid = '1.2.1'
+    rxjava = '1.2.2'
+    jsr250 = '1.0'
+    autoValue = '1.4-rc1'
+
+    // test
+    junit = '4.12'
+    espresso = '2.2.2'
+}
