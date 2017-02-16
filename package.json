@@ -1,0 +1,18 @@
+{
+  "name": "shoppinglist",
+  "version": "0.0.1",
+  "description": "Restful API for Shopping List Application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Faruk Cankaya",
+  "license": "ISC",
+  "dependencies": {
+    "good": "^7.1.0",
+    "good-console": "^6.4.0",
+    "good-squeeze": "^5.0.1",
+    "hapi": "^16.1.0",
+    "mysql": "^2.13.0"
+  }
+}
